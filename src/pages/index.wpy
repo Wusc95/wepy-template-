@@ -1,0 +1,138 @@
+<style lang="less">
+  .container{
+    padding: 50rpx;
+    font-family: PingFangSC-Medium;
+    letter-spacing:3rpx;
+    .logo-name{
+      text-align: center;
+      font-size: 43rpx;
+      image{
+        width: 100rpx;
+        height: 100rpx;
+        margin-top: 30rpx;
+      }
+      div{
+        margin-top: 30rpx;
+      }
+    }
+    .line{
+      width: 100%;
+      height: 2rpx;
+      background-color: #ccc;
+      margin: 50rpx 0;
+    }
+    .title{
+      font-size: 35rpx;
+    }
+    .desc{
+      font-size: 27rpx;
+      color: #ccc;
+      margin-top: 25rpx;
+    }
+    button{
+      margin-top: 100rpx;
+    }
+  }
+</style>
+
+<template>
+  <div class="page">
+    <div class="container"  v-if="canIUse">
+      <div class="logo-name">
+        <image src="{{'../static/img/logo.png'}}" />
+        <div>xxxx{{canIUse}}</div>
+      </div>
+      <div class="line"></div>
+      <div class="title">请确认授权以下信息</div>
+      <div class="desc">●  获得您的公开信息 (昵称、头像等)</div>
+      <van-button type="primary"  open-type="getUserInfo" bindgetuserinfo="getUserInfo">授权登录</van-button>
+    </div>
+    <div v-else>请升级微信版本</div>
+  </div>
+</template>
+
+<script>
+  import wepy from "@wepy/core"
+  import {store} from "@/store/index";
+  import http from "@/mixins/http";
+  import * as Utils from "@/mixins/utils"
+  import { mapState, mapActions } from "@wepy/x";
+
+  wepy.page({
+    store,
+    hooks: {
+    },
+    computed: {
+      ...mapState("user", [
+        "userInfo",
+        "accessToken"
+      ])
+    },
+    methods: {
+      ...mapActions("user", [
+        "login"
+      ]),
+      async test () {
+          let response = await http("POST", "test")
+      },
+      //获取用户基本信息和code
+      getUserInfo(e){
+        Utils.loading("加载中...");
+        let that = this;
+        console.log(e,"eee")
+        //授权拒绝
+        if(e.$wx.detail.errMsg =="getUserInfo:fail auth deny"){
+          Utils.hideLoading();
+        }
+        //用户授权
+        if(e.$wx.detail.errMsg =="getUserInfo:ok"){
+          // wx.setStorageSync("userInfo",e.detail.userInfo);
+          wx.getSetting({
+            success: function(res){
+              console.log(res, 'res')
+              if (res.authSetting["scope.userInfo"]) {
+                wx.login({
+                  success: function(res) {
+                    if(res.code){
+                      console.log(`code:${res.code}`)
+                      Utils.hideLoading();
+                      // that.login(res.code);
+                    }
+                  },fail:function(res){
+                    console.log(res,"res2")
+                  }
+                });
+              }
+            },fail:function(res){
+              console.log(res,"res1")
+            }
+          })
+        }
+      }
+    },
+    data: {
+      //判断小程序的API，回调，参数，组件等是否在当前版本可用。
+      canIUse: wx.canIUse('button.open-type.getUserInfo')
+    },
+
+    async onLoad () {
+      // if (!this.accessToken) {
+      //   this.login().then(res => {
+      //     console.log("onLoad")
+      //     this.test()
+      //   })
+      // } else {
+      //   console.log("onLoad")
+      // }
+    },
+
+  });
+</script>
+<config>
+{
+    navigationBarTitleText: "标题",
+    usingComponents: {
+      "van-button": "~@/components/vant/button/index"
+    }
+}
+</config>
