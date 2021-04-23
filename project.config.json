@@ -23,7 +23,7 @@
 		}
 	},
 	"compileType": "miniprogram",
-	"appid": "wxea52628c53c37185",
+	"appid": "",
 	"projectname": "wepy-template",
 	"miniprogramRoot": "weapp/",
 	"simulatorType": "wechat",
