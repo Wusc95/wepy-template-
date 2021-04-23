@@ -4,7 +4,7 @@
 ## 安装
 
 ```
-git clone https://github.com/Hanson/wepy-template.git my-project
+git clone git@github.com:Wusc95/wepy-template-.git
 cd my-project
 npm install
 
